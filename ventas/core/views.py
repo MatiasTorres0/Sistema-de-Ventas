@@ -4,6 +4,10 @@ from .models import Product, Transaction, Return
 import json
 from datetime import datetime
 from .forms import ProductForm
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Product, Transaction
+import json
 
 def index(request):
     products = Product.objects.all()
@@ -22,18 +26,31 @@ def add_product(request):
         })
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+def search_products(request):
+    query = request.GET.get('query', '')
+    products = Product.objects.filter(name__icontains=query) | Product.objects.filter(barcode__icontains=query)
+    product_list = [
+        {
+            'barcode': p.barcode,
+            'name': p.name,
+            'price': float(p.price),
+            'stock': p.stock,
+            'discount': float(p.discount)
+        } for p in products
+    ]
+    return JsonResponse(product_list, safe=False)
+
+@csrf_exempt
 def complete_transaction(request):
     if request.method == "POST":
         data = json.loads(request.body)
-        transaction_id = f"T{datetime.now().timestamp()}"
-        Transaction.objects.create(
-            id=transaction_id,
+        transaction = Transaction.objects.create(
             items=data['cart'],
             total=data['total'],
             client_name=data['client']['name'],
             client_dni=data['client']['dni']
         )
-        return JsonResponse({'transaction_id': transaction_id})
+        return JsonResponse({'transaction_id': transaction.id})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def get_transaction(request, transaction_id):

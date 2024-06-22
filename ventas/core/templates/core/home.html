@@ -4,732 +4,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Carrito de Compras</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
+    <title>Sistema POS - Supermercado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
             padding: 20px;
-            color: #333;
-            transition: background-color 0.3s ease;
+            background-color: #f4f4f4;
         }
 
-        header {
-            background-color: #ffcc00;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
+        .main-container {
+            background-color: white;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #fff;
             padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            transition: background-color 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            transition: border-color 0.3s ease;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            border-color: #ff6600;
-            outline: none;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid #ccc;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-            border-radius: 5px;
-        }
-
-        th {
-            background-color: #005bb5;
-            color: #fff;
-        }
-
-        button {
-            background-color: #ff6600;
-            color: #fff;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-            margin: 5px 0;
-            border-radius: 10px;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #e65c00;
-        }
-
-        .alert {
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            animation: fadeIn 0.5s;
-        }
-
-        .alert.success {
-            background-color: #dff0d8;
-            color: #3c763d;
-        }
-
-        .alert.error {
-            background-color: #f2dede;
-            color: #a94442;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding-top: 60px;
-            animation: fadeIn 0.5s;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            animation: slideIn 0.5s;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .currency-selector {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .currency-selector label {
-            margin: 0;
-        }
-
-        .currency-selector select {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .receipt {
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            text-align: left;
-            width: 100%;
-            max-width: 400px;
-            margin: 20px auto;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        .receipt h2,
-        .receipt p,
-        .receipt table {
-            margin: 0 0 10px 0;
-            padding: 0;
-        }
-
-        .receipt table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .receipt th,
-        .receipt td {
-            text-align: left;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .receipt th {
-            background-color: #005bb5;
-            color: #fff;
-            font-weight: normal;
-        }
-
-        .receipt-footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .suggestions {
-            border: 1px solid #ccc;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            max-height: 150px;
+        .product-list {
+            height: 400px;
             overflow-y: auto;
-            background-color: #fff;
-            position: absolute;
-            z-index: 10;
-            width: calc(100% - 22px);
         }
 
-        .suggestion-item {
-            padding: 10px;
-            cursor: pointer;
+        .cart-list {
+            height: 300px;
+            overflow-y: auto;
         }
 
-        .suggestion-item:hover {
-            background-color: #f0f0f0;
+        .total-section {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .function-buttons {
+            margin-top: 20px;
+        }
+
+        .function-buttons button {
+            margin-right: 10px;
+        }
+
+        .quantity-modal .modal-dialog {
+            max-width: 300px;
         }
     </style>
 </head>
 
 <body>
-    <header>
-        <h1>Sistema de Carrito de Compras</h1>
-        <a href="{% url 'agregar_producto' %}">Home</a>
-    </header>
-    <div class="container">
-        <div class="currency-selector">
-            <label for="currency">Moneda:</label>
-            <select id="currency" onchange="changeCurrency()">
-                <option value="USD">Dólares</option>
-                <option value="CLP">Pesos Chilenos</option>
-                <option value="MXN">Pesos Mexicanos</option>
-            </select>
+    <div class="container main-container">
+        <h1 class="mb-4 text-center">Sistema POS - Supermercado</h1>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <input type="text" id="product-search" class="form-control form-control-lg"
+                        placeholder="Buscar producto por código de barras o nombre...">
+                </div>
+                <div id="product-list" class="list-group product-list mb-3"></div>
+                <div class="cart-list">
+                    <h3>Artículos en carrito</h3>
+                    <ul id="cart-list" class="list-group"></ul>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">Resumen de venta</h3>
+                        <div class="mb-3">
+                            <label for="client-name" class="form-label">Nombre del cliente</label>
+                            <input type="text" id="client-name" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="client-dni" class="form-label">DNI del cliente</label>
+                            <input type="text" id="client-dni" class="form-control">
+                        </div>
+                        <div class="total-section mb-3">
+                            Total: $<span id="total">0.00</span>
+                        </div>
+                        <button id="checkout-btn" class="btn btn-primary btn-lg btn-block">Finalizar Venta</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <h2>Agregar Producto</h2>
-        <form id="product-form" onsubmit="addProductByBarcode(); return false;">
-            <label for="barcode">Código de Barras:</label>
-            <input type="text" id="barcode" required oninput="showSuggestions(this.value)">
-            <div id="suggestions" class="suggestions"></div>
-            <label for="quantity">Cantidad:</label>
-            <input type="number" id="quantity" value="1" min="1" required>
-            <button type="button" onclick="addProductByBarcode()" class="btn btn-primary">Agregar</button>
-            <div id="alert"></div>
-        </form>
 
-        <h2>Carrito de Compras</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Unidad</th>
-                    <th>Marca</th>
-                    <th>Precio</th>
-                    <th>Descuento</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="cart-items"></tbody>
-        </table>
-        <h3>Total: <span id="total-amount">$0.00</span></h3>
-        <button onclick="clearCart()">Vaciar Carrito</button>
+        <div class="function-buttons">
+            <button id="void-transaction-btn" class="btn btn-warning">Anular Transacción</button>
+            <button id="print-receipt-btn" class="btn btn-info">Imprimir Recibo</button>
+            <button id="open-drawer-btn" class="btn btn-secondary">Abrir Caja</button>
+            <button id="change-quantity-btn" class="btn btn-success">Cambiar Cantidad</button>
+        </div>
 
-        <h2>Cliente</h2>
-        <form id="client-form">
-            <label for="client-name">Nombre:</label>
-            <input type="text" id="client-name" required>
-            <label for="client-dni">DNI:</label>
-            <input type="text" id="client-dni" required>
-        </form>
-
-        <h2>Pago</h2>
-        <button type="button" onclick="showPaymentModal()" class="btn btn-warning">Seleccionar Método de Pago</button>
-
-        <h2>Devoluciones</h2>
-        <button type="button" onclick="showReturnModal()" class="btn btn-secondary">Iniciar Devolución</button>
-
-        <div id="alert"></div>
+        <div id="alert" class="mt-3"></div>
     </div>
 
-    <!-- Modal de Pago -->
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('paymentModal')">&times;</span>
-            <h2>Métodos de Pago</h2>
-            <button onclick="processCardPayment()" class="btn btn-primary">Tarjeta</button>
-            <button onclick="showCashPayment()" class="btn btn-success">Efectivo</button>
+    <!-- Modal para cambiar cantidad -->
+    <div class="modal fade quantity-modal" id="quantityModal" tabindex="-1" aria-labelledby="quantityModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quantityModalLabel">Cambiar Cantidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="number" id="quantity-input" class="form-control" value="1" min="1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="save-quantity">Guardar</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal de Pago en Efectivo -->
-    <div id="cashPaymentModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('cashPaymentModal')">&times;</span>
-            <h2>Pago en Efectivo</h2>
-            <label for="amount-received">Monto Recibido:</label>
-            <input type="number" id="amount-received" required>
-            <button type="button" onclick="processCashPayment()">Procesar Pago en Efectivo</button>
-        </div>
-    </div>
-
-    <!-- Modal de Confirmación de Pago -->
-    <div id="paymentConfirmationModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('paymentConfirmationModal')">&times;</span>
-            <h3>Cambio: <span id="change-amount">0.00</span></h3>
-            <button onclick="completeTransaction()">Completar Transacción</button>
-            <button onclick="printReceipt()">Imprimir Boleta</button>
-        </div>
-    </div>
-
-    <!-- Modal de Devolución -->
-    <div id="returnModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('returnModal')">&times;</span>
-            <h2>Iniciar Devolución</h2>
-            <label for="return-receipt-id">ID de la Boleta:</label>
-            <input type="text" id="return-receipt-id" required>
-            <label for="return-barcode">Código de Barras del Producto:</label>
-            <input type="text" id="return-barcode" required>
-            <label for="return-quantity">Cantidad:</label>
-            <input type="number" id="return-quantity" value="1" min="1" required>
-            <button type="button" onclick="processReturn()">Devolver Producto</button>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let cart = [];
-        let transactions = [];
-        const cartItems = document.getElementById('cart-items');
-        const totalAmount = document.getElementById('total-amount');
-        const amountReceivedInput = document.getElementById('amount-received');
-        const changeAmount = document.getElementById('change-amount');
-        const clientNameInput = document.getElementById('client-name');
-        const clientDniInput = document.getElementById('client-dni');
+        let defaultQuantity = 1;
+        const productList = document.getElementById('product-list');
+        const cartList = document.getElementById('cart-list');
+        const totalSpan = document.getElementById('total');
+        const productSearch = document.getElementById('product-search');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const clientName = document.getElementById('client-name');
+        const clientDni = document.getElementById('client-dni');
         const alertDiv = document.getElementById('alert');
-        let currency = 'USD';
+        const quantityModal = new bootstrap.Modal(document.getElementById('quantityModal'));
 
         function showAlert(message, type) {
-            alertDiv.className = `alert ${type}`;
+            alertDiv.className = `alert alert-${type}`;
             alertDiv.innerText = message;
-            setTimeout(() => {
-                alertDiv.className = '';
-                alertDiv.innerText = '';
-            }, 3000);
+            setTimeout(() => alertDiv.className = 'mt-3', 3000);
         }
 
-        function addProductByBarcode() {
-            const barcode = document.getElementById('barcode').value;
-            const quantity = parseInt(document.getElementById('quantity').value);
-
-            fetch('/add_product/', {
-                method: 'POST',
-                body: JSON.stringify({ barcode: barcode }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
+        function searchProducts(query) {
+            fetch(`/search_products/?query=${encodeURIComponent(query)}`)
                 .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        showAlert(data.error, 'error');
+                .then(products => {
+                    productList.innerHTML = '';
+                    if (products.length === 0) {
+                        productList.innerHTML = '<p class="list-group-item">No se encontraron productos</p>';
                     } else {
-                        const cartProduct = cart.find(p => p.barcode === barcode);
-                        if (cartProduct) {
-                            cartProduct.quantity += quantity;
-                        } else {
-                            cart.push({ ...data, barcode: barcode, quantity: quantity });
-                        }
-                        renderCart();
-                        showAlert('Producto agregado', 'success');
+                        products.forEach(product => {
+                            const item = document.createElement('a');
+                            item.classList.add('list-group-item', 'list-group-item-action');
+                            item.innerText = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.stock})`;
+                            item.onclick = () => addToCart(product);
+                            productList.appendChild(item);
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('Error al agregar producto', 'error');
+                    showAlert('Error al buscar productos', 'danger');
                 });
-
-            document.getElementById('barcode').value = '';
-            document.getElementById('quantity').value = 1;
-            document.getElementById('suggestions').innerHTML = ''; // Clear suggestions after adding
+        }
+        function addToCart(product) {
+            const existingItem = cart.find(item => item.barcode === product.barcode);
+            if (existingItem) {
+                existingItem.quantity += defaultQuantity;
+            } else {
+                cart.push({ ...product, quantity: defaultQuantity });
+            }
+            updateCart();
         }
 
-        function renderCart() {
-            cartItems.innerHTML = '';
+        function updateCart() {
+            cartList.innerHTML = '';
             let total = 0;
-            cart.forEach((product, index) => {
-                const row = document.createElement('tr');
-                const totalPrice = product.price * product.quantity * (1 - product.discount / 100);
-                total += totalPrice;
-
-                row.innerHTML = `
-                    <td>${product.barcode}</td>
-                    <td>${product.name}</td>
-                    <td>${product.quantity}</td>
-                    <td>${product.unit}</td>
-                    <td>${product.brand}</td>
-                    <td>${formatCurrency(product.price)}</td>
-                    <td>${product.discount}%</td>
-                    <td>${formatCurrency(totalPrice)}</td>
-                    <td><button onclick="removeProduct(${index})">Eliminar</button></td>
-                `;
-                cartItems.appendChild(row);
+            cart.forEach(item => {
+                const li = document.createElement('li');
+                li.classList.add('list-group-item');
+                const itemTotal = item.price * item.quantity * (1 - item.discount / 100);
+                li.innerText = `${item.name} x${item.quantity} - $${itemTotal.toFixed(2)}`;
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('btn', 'btn-sm', 'btn-danger', 'float-end');
+                removeBtn.innerText = 'X';
+                removeBtn.onclick = () => removeFromCart(item);
+                li.appendChild(removeBtn);
+                cartList.appendChild(li);
+                total += itemTotal;
             });
-            totalAmount.innerText = `${formatCurrency(total)}`;
+            totalSpan.innerText = total.toFixed(2);
         }
 
-        function removeProduct(index) {
-            cart.splice(index, 1);
-            renderCart();
+        function removeFromCart(item) {
+            const index = cart.findIndex(cartItem => cartItem.barcode === item.barcode);
+            if (index !== -1) {
+                cart.splice(index, 1);
+                updateCart();
+            }
         }
 
-        function clearCart() {
-            cart = [];
-            renderCart();
-            showAlert('Carrito vaciado', 'success');
-        }
-
-        function showPaymentModal() {
-            document.getElementById('paymentModal').style.display = 'block';
-        }
-
-        function showCashPayment() {
-            closeModal('paymentModal');
-            document.getElementById('cashPaymentModal').style.display = 'block';
-        }
-
-        function processCardPayment() {
-            const transactionId = `T${Date.now()}`;
-            saveTransaction(transactionId);
-            closeModal('paymentModal');
-            document.getElementById('paymentConfirmationModal').style.display = 'block';
-            showAlert('Pago con tarjeta procesado exitosamente', 'success');
-        }
-
-        function processCashPayment() {
-            const amountReceived = parseFloat(amountReceivedInput.value);
-            const total = parseFloat(totalAmount.innerText.replace(/[^0-9.-]+/g, ""));
-
-            if (isNaN(amountReceived) || amountReceived < total) {
-                showAlert('Monto recibido insuficiente o inválido', 'error');
+        function checkout() {
+            if (cart.length === 0) {
+                showAlert('El carrito está vacío', 'warning');
+                return;
+            }
+            if (!clientName.value || !clientDni.value) {
+                showAlert('Por favor, ingrese los datos del cliente', 'warning');
                 return;
             }
 
-            const change = amountReceived - total;
-            changeAmount.innerText = formatCurrency(change);
-            const transactionId = `T${Date.now()}`;
-            saveTransaction(transactionId);
-            closeModal('cashPaymentModal');
-            document.getElementById('paymentConfirmationModal').style.display = 'block';
+            const transaction = {
+                cart: cart,
+                total: parseFloat(totalSpan.innerText),
+                client: {
+                    name: clientName.value,
+                    dni: clientDni.value
+                }
+            };
+
+            fetch('/complete_transaction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(transaction)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.transaction_id) {
+                        showAlert('Compra realizada con éxito', 'success');
+                        cart = [];
+                        updateCart();
+                        clientName.value = '';
+                        clientDni.value = '';
+                    } else {
+                        showAlert('Error al procesar la compra', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error al procesar la compra', 'danger');
+                });
         }
 
-        function completeTransaction() {
-            showAlert('Pago procesado exitosamente', 'success');
-            clearCart();
-            closeModal('paymentConfirmationModal');
-            clearClientForm();
-            amountReceivedInput.value = '';
-        }
-
-        function clearClientForm() {
-            clientNameInput.value = '';
-            clientDniInput.value = '';
+        function voidTransaction() {
+            if (confirm('¿Está seguro de que desea anular esta transacción?')) {
+                cart = [];
+                updateCart();
+                showAlert('Transacción anulada', 'warning');
+            }
         }
 
         function printReceipt() {
-            const transactionId = `T${Date.now()}`;
-            saveTransaction(transactionId);
-            let receiptContent = `
-                <div class="receipt">
-                    <h2>Boleta de Compra</h2>
-                    <p><strong>ID:</strong> ${transactionId}</p>
-                    <p><strong>Cliente:</strong> ${clientNameInput.value}</p>
-                    <p><strong>DNI:</strong> ${clientDniInput.value}</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Unidad</th>
-                                <th>Marca</th>
-                                <th>Precio</th>
-                                <th>Descuento</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-            let total = 0;
-            cart.forEach(product => {
-                const totalPrice = product.price * product.quantity * (1 - product.discount / 100);
-                total += totalPrice;
-                receiptContent += `
-                    <tr>
-                        <td>${product.barcode}</td>
-                        <td>${product.name}</td>
-                        <td>${product.quantity}</td>
-                        <td>${product.unit}</td>
-                        <td>${product.brand}</td>
-                        <td>${formatCurrency(product.price)}</td>
-                        <td>${product.discount}%</td>
-                        <td>${formatCurrency(totalPrice)}</td>
-                    </tr>
-                `;
+            doc.text('Recibo de Compra', 10, 10);
+            doc.text(`Cliente: ${clientName.value}`, 10, 20);
+            doc.text(`DNI: ${clientDni.value}`, 10, 30);
+            doc.text('Productos:', 10, 40);
+
+            let y = 50;
+            cart.forEach(item => {
+                doc.text(`${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`, 10, y);
+                y += 10;
             });
 
-            receiptContent += `
-                        </tbody>
-                    </table>
-                    <p><strong>Total:</strong> ${formatCurrency(total)}</p>
-                    <p><strong>Monto Recibido:</strong> ${formatCurrency(parseFloat(amountReceivedInput.value))}</p>
-                    <p><strong>Cambio:</strong> ${changeAmount.innerText}</p>
-                    <div class="receipt-footer">¡Gracias por su compra!</div>
-                </div>
-            `;
+            doc.text(`Total: $${totalSpan.innerText}`, 10, y + 10);
 
-            const receiptWindow = window.open('', '_blank');
-            receiptWindow.document.write(receiptContent);
-            receiptWindow.document.close();
-            receiptWindow.print();
+            doc.save('recibo.pdf');
         }
 
-        function saveTransaction(transactionId) {
-            const transaction = {
-                id: transactionId,
-                items: cart,
-                total: totalAmount.innerText,
-                client: {
-                    name: clientNameInput.value,
-                    dni: clientDniInput.value
-                }
-            };
-            transactions.push(transaction);
+        function openDrawer() {
+            showAlert('Abriendo cajón...', 'info');
         }
 
-        function showReturnModal() {
-            document.getElementById('returnModal').style.display = 'block';
+        function changeQuantity() {
+            quantityModal.show();
         }
 
-        function processReturn() {
-            const returnReceiptId = document.getElementById('return-receipt-id').value;
-            const returnBarcode = document.getElementById('return-barcode').value;
-            const returnQuantity = parseInt(document.getElementById('return-quantity').value);
-            const transaction = transactions.find(t => t.id === returnReceiptId);
+        document.getElementById('save-quantity').addEventListener('click', () => {
+            defaultQuantity = parseInt(document.getElementById('quantity-input').value);
+            quantityModal.hide();
+            showAlert(`Cantidad predeterminada cambiada a ${defaultQuantity}`, 'info');
+        });
 
-            if (transaction) {
-                const productIndex = transaction.items.findIndex(p => p.barcode === returnBarcode);
-                if (productIndex !== -1) {
-                    const product = transaction.items[productIndex];
-                    if (product.quantity >= returnQuantity) {
-                        product.quantity -= returnQuantity;
-                        if (product.quantity === 0) {
-                            transaction.items.splice(productIndex, 1);
-                        }
-                        showAlert('Producto devuelto', 'success');
-                    } else {
-                        showAlert('Cantidad a devolver excede la cantidad comprada', 'error');
-                    }
-                } else {
-                    showAlert('Producto no encontrado en la boleta', 'error');
-                }
-            } else {
-                showAlert('ID de boleta no encontrado', 'error');
-            }
-
-            document.getElementById('return-receipt-id').value = '';
-            document.getElementById('return-barcode').value = '';
-            document.getElementById('return-quantity').value = 1;
-            closeModal('returnModal');
-            printReturnReceipt(returnReceiptId, returnBarcode, returnQuantity);
-        }
-
-        function printReturnReceipt(receiptId, barcode, quantity) {
-            const transaction = transactions.find(t => t.id === receiptId);
-            if (!transaction) {
-                showAlert('ID de boleta no encontrado', 'error');
-                return;
-            }
-
-            const product = transaction.items.find(p => p.barcode === barcode);
-            if (!product) {
-                showAlert('Producto no encontrado en la boleta', 'error');
-                return;
-            }
-
-            let receiptContent = `
-                <div class="receipt">
-                    <h2>Boleta de Devolución</h2>
-                    <p><strong>ID de Boleta Original:</strong> ${receiptId}</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Unidad</th>
-                                <th>Marca</th>
-                                <th>Precio</th>
-                                <th>Total Devuelto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            const totalPrice = product.price * quantity * (1 - product.discount / 100);
-            receiptContent += `
-                <tr>
-                    <td>${product.barcode}</td>
-                    <td>${product.name}</td>
-                    <td>${quantity}</td>
-                    <td>${product.unit}</td>
-                    <td>${product.brand}</td>
-                    <td>${formatCurrency(product.price)}</td>
-                    <td>${formatCurrency(totalPrice)}</td>
-                </tr>
-            `;
-
-            receiptContent += `
-                        </tbody>
-                    </table>
-                    <p><strong>Total Devuelto:</strong> ${formatCurrency(totalPrice)}</p>
-                    <div class="receipt-footer">¡Gracias por su compra!</div>
-                </div>
-            `;
-
-            const receiptWindow = window.open('', '_blank');
-            receiptWindow.document.write(receiptContent);
-            receiptWindow.document.close();
-            receiptWindow.print();
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        window.onclick = function (event) {
-            const modals = document.getElementsByClassName('modal');
-            for (let i = 0; i < modals.length; i++) {
-                if (event.target == modals[i]) {
-                    modals[i].style.display = 'none';
-                }
-            }
-        }
-
-        function changeCurrency() {
-            currency = document.getElementById('currency').value;
-            renderCart();
-            changeAmount.innerText = formatCurrency(parseFloat(changeAmount.innerText.replace(/[^0-9.-]+/g, "")));
-        }
-
-        function formatCurrency(value) {
-            let formatter;
-            switch (currency) {
-                case 'CLP':
-                    formatter = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
-                    break;
-                case 'MXN':
-                    formatter = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
-                    break;
-                default:
-                    formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-                    break;
-            }
-            return formatter.format(value);
-        }
-
-        // Helper function to get the CSRF token from the cookies
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
                     if (cookie.substring(0, name.length + 1) === (name + '=')) {
                         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                         break;
@@ -739,46 +298,24 @@
             return cookieValue;
         }
 
-        function showSuggestions(value) {
-            if (value.length === 0) {
-                document.getElementById('suggestions').innerHTML = '';
-                return;
+        // Asegúrese de que este evento esté correctamente conectado
+        productSearch.addEventListener('input', (e) => searchProducts(e.target.value));
+
+        // También, agreguemos un evento para buscar al presionar Enter
+        productSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchProducts(e.target.value);
             }
+        });
+        checkoutBtn.addEventListener('click', checkout);
+        document.getElementById('void-transaction-btn').addEventListener('click', voidTransaction);
+        document.getElementById('print-receipt-btn').addEventListener('click', printReceipt);
+        document.getElementById('open-drawer-btn').addEventListener('click', openDrawer);
+        document.getElementById('change-quantity-btn').addEventListener('click', changeQuantity);
 
-            fetch(`/search_products/?query=${value}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    const suggestions = document.getElementById('suggestions');
-                    suggestions.innerHTML = '';
-                    data.forEach(product => {
-                        const div = document.createElement('div');
-                        div.className = 'suggestion-item';
-                        div.innerText = `${product.barcode} - ${product.name}`;
-                        div.onclick = () => selectSuggestion(product.barcode);
-                        suggestions.appendChild(div);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        }
-
-        function selectSuggestion(barcode) {
-            document.getElementById('barcode').value = barcode;
-            document.getElementById('suggestions').innerHTML = '';
-        }
+        // Inicialización
+        searchProducts('');
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
-        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
-        crossorigin="anonymous"></script>
 </body>
 
 </html>
