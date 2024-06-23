@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Product, Transaction
 import json
+from django.db import transaction
 
 def index(request):
     products = Product.objects.all()
@@ -34,23 +35,37 @@ def search_products(request):
             'barcode': p.barcode,
             'name': p.name,
             'price': float(p.price),
-            'stock': p.stock,
+            'stock': int(p.stock),
             'discount': float(p.discount)
         } for p in products
     ]
     return JsonResponse(product_list, safe=False)
 
 @csrf_exempt
+@transaction.atomic
 def complete_transaction(request):
     if request.method == "POST":
         data = json.loads(request.body)
+        cart = data['cart']
+        
+        # Verificar stock y actualizar
+        for item in cart:
+            product = Product.objects.select_for_update().get(barcode=item['barcode'])
+            if int(product.stock) < item['quantity']:
+                return JsonResponse({'error': f'Stock insuficiente para {product.name}'}, status=400)
+            product.stock = str(int(product.stock) - item['quantity'])
+            product.save()
+        
+        # Crear la transacción
         transaction = Transaction.objects.create(
-            items=data['cart'],
+            items=cart,
             total=data['total'],
             client_name=data['client']['name'],
-            client_dni=data['client']['dni']
+            client_dni=data['client']['dni'],
+            payment_method=data['paymentMethod']
         )
-        return JsonResponse({'transaction_id': transaction.id})
+        
+        return JsonResponse({'transaction_id': transaction.id, 'message': 'Transacción completada con éxito'})
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def get_transaction(request, transaction_id):

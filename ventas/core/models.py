@@ -18,6 +18,7 @@ class Transaction(models.Model):
     client_name = models.CharField(max_length=100)
     client_dni = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=50, default='efectivo')
 
 class Return(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)

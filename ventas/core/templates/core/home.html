@@ -11,22 +11,23 @@
         body {
             padding: 20px;
             background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .main-container {
             background-color: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(7, 6, 6, 0.1);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .product-list {
-            height: 400px;
-            overflow-y: auto;
-        }
-
-        .cart-list {
-            height: 300px;
+        .product-list, .cart-list {
+            flex-grow: 1;
             overflow-y: auto;
         }
 
@@ -41,10 +42,40 @@
 
         .function-buttons button {
             margin-right: 10px;
+            font-size: 20px;
+            padding: 15px;
         }
 
         .quantity-modal .modal-dialog {
             max-width: 300px;
+        }
+
+        .modal-content {
+            font-size: 18px;
+        }
+
+        .carousel-item {
+            padding: 20px;
+        }
+
+        .virtual-keyboard {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #ccc;
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .virtual-keyboard button {
+            font-size: 20px;
+            padding: 15px;
+            width: 100%;
+            border: 1px solid #ccc;
+            background-color: #f4f4f4;
         }
     </style>
 </head>
@@ -53,7 +84,7 @@
     <div class="container main-container">
         <h1 class="mb-4 text-center">Sistema POS - Supermercado</h1>
 
-        <div class="row">
+        <div class="row flex-grow-1">
             <div class="col-md-8">
                 <div class="mb-3">
                     <input type="text" id="product-search" class="form-control form-control-lg"
@@ -71,17 +102,24 @@
                     <div class="card-body">
                         <h3 class="card-title">Resumen de venta</h3>
                         <div class="mb-3">
-                            <label for="client-name" class="form-label">Nombre del cliente</label>
+                            <label for="client-name" class="form-label">Nombre del cliente (opcional)</label>
                             <input type="text" id="client-name" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label for="client-dni" class="form-label">DNI del cliente</label>
+                            <label for="client-dni" class="form-label">DNI del cliente (opcional)</label>
                             <input type="text" id="client-dni" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="invoice-type" class="form-label">Tipo de comprobante</label>
+                            <select id="invoice-type" class="form-control">
+                                <option value="boleta">Boleta</option>
+                                <option value="factura">Factura</option>
+                            </select>
                         </div>
                         <div class="total-section mb-3">
                             Total: $<span id="total">0.00</span>
                         </div>
-                        <button id="checkout-btn" class="btn btn-primary btn-lg btn-block">Finalizar Venta</button>
+                        <button id="pay-btn" class="btn btn-primary btn-lg btn-block">Pagar</button>
                     </div>
                 </div>
             </div>
@@ -93,8 +131,6 @@
             <button id="open-drawer-btn" class="btn btn-secondary">Abrir Caja</button>
             <button id="change-quantity-btn" class="btn btn-success">Cambiar Cantidad</button>
         </div>
-
-        <div id="alert" class="mt-3"></div>
     </div>
 
     <!-- Modal para cambiar cantidad -->
@@ -108,10 +144,90 @@
                 </div>
                 <div class="modal-body">
                     <input type="number" id="quantity-input" class="form-control" value="1" min="1">
+                    <div id="quantity-keyboard-container"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary" id="save-quantity">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para alertas -->
+    <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alertModalLabel">Alerta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="alertModalBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para pago (actualizado con carrusel) -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Proceso de pago</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="paymentCarousel" class="carousel slide" data-bs-interval="false">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <h5>Seleccionar método de pago</h5>
+                                <button class="btn btn-primary w-100 mb-2" onclick="goToSlide(1)">Tarjeta</button>
+                                <button class="btn btn-success w-100 mb-2" onclick="goToSlide(2)">Efectivo</button>
+                                <button class="btn btn-info w-100" onclick="goToSlide(3)">Pago dividido</button>
+                            </div>
+                            <div class="carousel-item">
+                                <h5>Pago con tarjeta</h5>
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p>Esperando respuesta...</p>
+                                    <button class="btn btn-success mt-3" onclick="validatePayment()">Validar pago</button>
+                                    <button class="btn btn-secondary mt-3" onclick="goToSlide(0)">Cambiar método</button>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <h5>Pago en efectivo</h5>
+                                <div class="mb-3">
+                                    <label for="amountPaid" class="form-label">Monto pagado:</label>
+                                    <input type="number" class="form-control" id="amountPaid">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="change" class="form-label">Vuelto:</label>
+                                    <input type="number" class="form-control" id="change" readonly>
+                                </div>
+                                <button class="btn btn-success" onclick="processCashPayment()">Completar pago</button>
+                            </div>
+                            <div class="carousel-item">
+                                <h5>Pago dividido</h5>
+                                <div class="mb-3">
+                                    <label for="cardAmount" class="form-label">Monto con tarjeta:</label>
+                                    <input type="number" class="form-control" id="cardAmount">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cashAmount" class="form-label">Monto en efectivo:</label>
+                                    <input type="number" class="form-control" id="cashAmount">
+                                </div>
+                                <button class="btn btn-info" onclick="processSplitPayment()">Procesar pago dividido</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </div>
         </div>
@@ -125,16 +241,20 @@
         const cartList = document.getElementById('cart-list');
         const totalSpan = document.getElementById('total');
         const productSearch = document.getElementById('product-search');
-        const checkoutBtn = document.getElementById('checkout-btn');
+        const payBtn = document.getElementById('pay-btn');
         const clientName = document.getElementById('client-name');
         const clientDni = document.getElementById('client-dni');
-        const alertDiv = document.getElementById('alert');
         const quantityModal = new bootstrap.Modal(document.getElementById('quantityModal'));
+        const alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        const paymentCarousel = new bootstrap.Carousel(document.getElementById('paymentCarousel'), {
+            interval: false,
+            wrap: false
+        });
 
-        function showAlert(message, type) {
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.innerText = message;
-            setTimeout(() => alertDiv.className = 'mt-3', 3000);
+        function showAlert(message) {
+            document.getElementById('alertModalBody').innerText = message;
+            alertModal.show();
         }
 
         function searchProducts(query) {
@@ -148,6 +268,7 @@
                         products.forEach(product => {
                             const item = document.createElement('a');
                             item.classList.add('list-group-item', 'list-group-item-action');
+                            item.style.fontSize = '20px';
                             item.innerText = `${product.name} - $${product.price.toFixed(2)} (Stock: ${product.stock})`;
                             item.onclick = () => addToCart(product);
                             productList.appendChild(item);
@@ -156,15 +277,28 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showAlert('Error al buscar productos', 'danger');
+                    showAlert('Error al buscar productos');
                 });
         }
+
         function addToCart(product) {
+            if (product.stock <= 0) {
+                showAlert('Este producto está fuera de stock');
+                return;
+            }
             const existingItem = cart.find(item => item.barcode === product.barcode);
             if (existingItem) {
+                if (existingItem.quantity + defaultQuantity > product.stock) {
+                    showAlert('No hay suficiente stock para agregar esta cantidad');
+                    return;
+                }
                 existingItem.quantity += defaultQuantity;
             } else {
-                cart.push({ ...product, quantity: defaultQuantity });
+                if (defaultQuantity > product.stock) {
+                    showAlert('No hay suficiente stock para agregar esta cantidad');
+                    return;
+                }
+                cart.push({...product, quantity: defaultQuantity});
             }
             updateCart();
         }
@@ -175,6 +309,7 @@
             cart.forEach(item => {
                 const li = document.createElement('li');
                 li.classList.add('list-group-item');
+                li.style.fontSize = '20px';
                 const itemTotal = item.price * item.quantity * (1 - item.discount / 100);
                 li.innerText = `${item.name} x${item.quantity} - $${itemTotal.toFixed(2)}`;
                 const removeBtn = document.createElement('button');
@@ -196,56 +331,11 @@
             }
         }
 
-        function checkout() {
-            if (cart.length === 0) {
-                showAlert('El carrito está vacío', 'warning');
-                return;
-            }
-            if (!clientName.value || !clientDni.value) {
-                showAlert('Por favor, ingrese los datos del cliente', 'warning');
-                return;
-            }
-
-            const transaction = {
-                cart: cart,
-                total: parseFloat(totalSpan.innerText),
-                client: {
-                    name: clientName.value,
-                    dni: clientDni.value
-                }
-            };
-
-            fetch('/complete_transaction/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify(transaction)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.transaction_id) {
-                        showAlert('Compra realizada con éxito', 'success');
-                        cart = [];
-                        updateCart();
-                        clientName.value = '';
-                        clientDni.value = '';
-                    } else {
-                        showAlert('Error al procesar la compra', 'danger');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showAlert('Error al procesar la compra', 'danger');
-                });
-        }
-
         function voidTransaction() {
             if (confirm('¿Está seguro de que desea anular esta transacción?')) {
                 cart = [];
                 updateCart();
-                showAlert('Transacción anulada', 'warning');
+                showAlert('Transacción anulada');
             }
         }
 
@@ -254,8 +344,8 @@
             const doc = new jsPDF();
 
             doc.text('Recibo de Compra', 10, 10);
-            doc.text(`Cliente: ${clientName.value}`, 10, 20);
-            doc.text(`DNI: ${clientDni.value}`, 10, 30);
+            doc.text(`Cliente: ${clientName.value || 'N/A'}`, 10, 20);
+            doc.text(`DNI: ${clientDni.value || 'N/A'}`, 10, 30);
             doc.text('Productos:', 10, 40);
 
             let y = 50;
@@ -270,48 +360,188 @@
         }
 
         function openDrawer() {
-            showAlert('Abriendo cajón...', 'info');
+            showAlert('Abriendo cajón...');
         }
 
         function changeQuantity() {
             quantityModal.show();
         }
 
-        document.getElementById('save-quantity').addEventListener('click', () => {
-            defaultQuantity = parseInt(document.getElementById('quantity-input').value);
-            quantityModal.hide();
-            showAlert(`Cantidad predeterminada cambiada a ${defaultQuantity}`, 'info');
-        });
-
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+        function initializePayment() {
+            if (cart.length === 0) {
+                showAlert('El carrito está vacío');
+                return;
             }
-            return cookieValue;
+            paymentModal.show();
         }
 
-        // Asegúrese de que este evento esté correctamente conectado
-        productSearch.addEventListener('input', (e) => searchProducts(e.target.value));
+        function goToSlide(slideIndex) {
+            paymentCarousel.to(slideIndex);
+        }
 
-        // También, agreguemos un evento para buscar al presionar Enter
-        productSearch.addEventListener('keypress', (e) => {
+        function processCardPayment() {
+            showAlert('Esperando respuesta del POS...');
+            // Simulación de esperar respuesta del POS
+        }
+
+        function processCashPayment() {
+            const total = parseFloat(totalSpan.innerText);
+            const amountPaid = parseFloat(document.getElementById('amountPaid').value);
+            
+            if (isNaN(amountPaid) || amountPaid < total) {
+                showAlert('Por favor, ingrese un monto válido y suficiente');
+                return;
+            }
+
+            const change = amountPaid - total;
+            document.getElementById('change').value = change.toFixed(2);
+            completeTransaction('Efectivo');
+        }
+
+        function processSplitPayment() {
+            const total = parseFloat(totalSpan.innerText);
+            const cardAmount = parseFloat(document.getElementById('cardAmount').value);
+            const cashAmount = parseFloat(document.getElementById('cashAmount').value);
+            
+            if (isNaN(cardAmount) || isNaN(cashAmount) || (cardAmount + cashAmount) < total) {
+                showAlert('Por favor, ingrese montos válidos que cubran el total');
+                return;
+            }
+
+            completeTransaction('Dividido');
+        }
+
+        function validatePayment() {
+            completeTransaction('Tarjeta');
+        }
+
+        function completeTransaction(paymentMethod) {
+            showAlert(`Pago completado con ${paymentMethod}`);
+            paymentModal.hide();
+            startNewSale();
+        }
+
+        function startNewSale() {
+            cart = [];
+            updateCart();
+            document.getElementById('client-name').value = '';
+            document.getElementById('client-dni').value = '';
+            document.getElementById('product-search').value = '';
+            searchProducts('');
+            paymentCarousel.to(0); // Volver al método de pago inicial
+            showAlert('Nueva venta iniciada');
+        }
+
+        function showKeyboard(targetElement) {
+            if (document.getElementById('keyboardToggle').checked) {
+                const keyboard = new Keyboard(targetElement);
+                keyboard.show();
+            }
+        }
+
+        class Keyboard {
+            constructor(targetElement) {
+                this.targetElement = targetElement;
+                this.keys = [
+                    '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 
+                    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
+                    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 
+                    'Z', 'X', 'C', 'V', 'B', 'N', 'M', 
+                    'Borrar', 'Espacio', 'Enter', 'Cerrar'
+                ];
+            }
+
+            show() {
+                const keyboardContainer = document.createElement('div');
+                keyboardContainer.classList.add('virtual-keyboard');
+                this.keyboardContainer = keyboardContainer;
+
+                this.keys.forEach(key => {
+                    const keyButton = document.createElement('button');
+                    keyButton.innerText = key;
+                    keyButton.style.fontSize = '20px';
+                    keyButton.style.padding = '15px';
+                    keyButton.style.width = '100%';
+                    keyButton.style.border = '1px solid #ccc';
+                    keyButton.style.backgroundColor = '#f4f4f4';
+                    keyButton.onclick = () => this.handleKeyPress(key);
+                    keyboardContainer.appendChild(keyButton);
+                });
+
+                document.body.appendChild(keyboardContainer);
+            }
+
+            handleKeyPress(key) {
+                if (key === 'Borrar') {
+                    this.targetElement.value = this.targetElement.value.slice(0, -1);
+                } else if (key === 'Espacio') {
+                    this.targetElement.value += ' ';
+                } else if (key === 'Enter') {
+                    const event = new Event('keypress');
+                    event.key = 'Enter';
+                    this.targetElement.dispatchEvent(event);
+                } else if (key === 'Cerrar') {
+                    this.hide();
+                } else {
+                    this.targetElement.value += key;
+                }
+            }
+
+            hide() {
+                if (this.keyboardContainer) {
+                    this.keyboardContainer.remove();
+                }
+            }
+        }
+
+        document.getElementById('product-search').addEventListener('focus', (e) => showKeyboard(e.target));
+        document.getElementById('quantity-input').addEventListener('focus', (e) => showKeyboard(e.target));
+        document.getElementById('product-search').addEventListener('input', (e) => searchProducts(e.target.value));
+        document.getElementById('product-search').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 searchProducts(e.target.value);
             }
         });
-        checkoutBtn.addEventListener('click', checkout);
+        payBtn.addEventListener('click', initializePayment);
         document.getElementById('void-transaction-btn').addEventListener('click', voidTransaction);
         document.getElementById('print-receipt-btn').addEventListener('click', printReceipt);
         document.getElementById('open-drawer-btn').addEventListener('click', openDrawer);
         document.getElementById('change-quantity-btn').addEventListener('click', changeQuantity);
+        document.getElementById('save-quantity').addEventListener('click', () => {
+            defaultQuantity = parseInt(document.getElementById('quantity-input').value);
+            quantityModal.hide();
+            showAlert(`Cantidad predeterminada cambiada a ${defaultQuantity}`);
+        });
+
+        document.getElementById('amountPaid').addEventListener('input', function() {
+            const total = parseFloat(totalSpan.innerText);
+            const amountPaid = parseFloat(this.value);
+            if (!isNaN(amountPaid)) {
+                const change = amountPaid - total;
+                document.getElementById('change').value = change >= 0 ? change.toFixed(2) : '0.00';
+            }
+        });
+
+        // Agregar botón para iniciar nueva venta
+        const newSaleBtn = document.createElement('button');
+        newSaleBtn.classList.add('btn', 'btn-primary', 'mt-3');
+        newSaleBtn.innerText = 'Iniciar Nueva Venta';
+        newSaleBtn.onclick = startNewSale;
+        document.querySelector('.function-buttons').appendChild(newSaleBtn);
+
+        // Agregar opción para activar teclado en pantalla
+        const keyboardToggleLabel = document.createElement('label');
+        keyboardToggleLabel.innerText = 'Teclado en pantalla';
+        keyboardToggleLabel.classList.add('form-check-label', 'ms-3');
+        const keyboardToggle = document.createElement('input');
+        keyboardToggle.type = 'checkbox';
+        keyboardToggle.classList.add('form-check-input');
+        keyboardToggle.id = 'keyboardToggle';
+        const keyboardToggleContainer = document.createElement('div');
+        keyboardToggleContainer.classList.add('form-check', 'form-switch', 'mt-3');
+        keyboardToggleContainer.appendChild(keyboardToggle);
+        keyboardToggleContainer.appendChild(keyboardToggleLabel);
+        document.querySelector('.function-buttons').appendChild(keyboardToggleContainer);
 
         // Inicialización
         searchProducts('');
