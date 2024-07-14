@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 class Product(models.Model):
     barcode = models.CharField(max_length=100, unique=True)
