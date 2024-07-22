@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transacciones</title>
+</head>
+<body>
+    <h2>Transacciones</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Cliente</th>
+      <th>Total</th>
+      <th>Fecha</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in transactions %}
+    <tr>
+      <td>{{ transaction.id|default:"N/A" }}</td>
+      <td>{{ transaction.client_name }}</td>
+      <td>${{ transaction.total }}</td>
+      <td>{{ transaction.created_at|date:"d/m/Y H:i" }}</td>
+      <td>
+        {% if transaction.id %}
+          <a href="{% url 'transaction_detail' transaction.id %}" class="btn btn-info btn-sm">Ver</a>
+          <a href="{% url 'transaction_pdf' transaction.id %}" class="btn btn-primary btn-sm">Descargar PDF</a>
+        {% else %}
+          <span class="text-muted">No disponible</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</body>
+</html>

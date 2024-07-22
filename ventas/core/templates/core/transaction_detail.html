@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de la Transacción</title>
+</head>
+<body>
+
+<h2>Detalles de la Transacción</h2>
+<p><strong>ID:</strong> {{ transaction.id }}</p>
+<p><strong>Cliente:</strong> {{ transaction.client_name }}</p>
+<p><strong>Total:</strong> ${{ transaction.total }}</p>
+<p><strong>Fecha:</strong> {{ transaction.created_at|date:"d/m/Y H:i" }}</p>
+
+<h3>Artículos</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Cantidad</th>
+      <th>Precio</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in transaction.items %}
+    <tr>
+      <td>{{ item.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>${{ item.price }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{% url 'transaction_pdf' transaction.id %}" class="btn btn-primary">Descargar PDF</a>
+
+</body>
+</html>
